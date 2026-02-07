@@ -1,0 +1,53 @@
+let lyrics = [];
+
+function addLyric() {
+    const input = document.getElementById("input");
+    if (!input.value.trim()) return;
+
+    lyrics.push(input.value.trim());
+    input.value = "";
+    renderLyrics();
+}
+
+function renderLyrics() {
+    const container = document.getElementById("lyrics");
+    container.innerHTML = "";
+
+    lyrics.forEach((line, index) => {
+        container.innerHTML += `<p>${index + 1}. ${line}</p>`;
+    });
+}
+
+async function searchSong() {
+    if (lyrics.length === 0) return;
+
+    const query = encodeURIComponent(lyrics.join(" "));
+    const url = `https://itunes.apple.com/search?term=${query}&entity=song&limit=5`;
+
+    document.getElementById("results").innerText = "Recherche...";
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    displayResults(data.results);
+}
+
+function displayResults(songs) {
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    if (songs.length === 0) {
+        container.innerText = "Aucune chanson trouvée";
+        return;
+    }
+
+    songs.forEach(song => {
+        container.innerHTML += `
+            <div style="margin-top:10px">
+                <strong>${song.trackName}</strong><br>
+                ${song.artistName}<br>
+                <a href="${song.trackViewUrl}" target="_blank">🎵 Écouter</a>
+            </div>
+        `;
+    });
+}
